@@ -1,7 +1,5 @@
 package tictactoe;
 
-import java.util.Arrays;
-import java.util.List;
 import java.util.Scanner;
 
 public class Main {
@@ -16,10 +14,81 @@ public class Main {
         String[][] grid = makeGrid(state);
 
         printGrid(grid);
-        analyzeState(state);
+
+        boolean inputOK = false;
+
+        String xCoords = null;
+        String yCoords = null;
+
+        do {
+            System.out.print("Enter the coordinates: ");
+
+            xCoords = scanner.next();
+            yCoords = scanner.next();
+
+            inputOK = analyzeInput(state, xCoords, yCoords);
+
+        } while (!inputOK);
+
+        int x = Integer.parseInt(xCoords);
+        int y = Integer.parseInt(yCoords);
+
+        grid[x - 1][y - 1] = "X";
+
+        printGrid(grid);
+
+        //analyzeState(state);
     }
 
-    private static void analyzeState(String[] state) {
+    public static void printGrid(String[][] grid) {
+        System.out.println("---------");
+
+        for (int i = 0; i < grid.length; i++) {
+
+            System.out.print("| ");
+
+            for (int j = 0; j < grid.length; j++) {
+                System.out.print(grid[i][j] + " ");
+            }
+
+            System.out.println("|");
+        }
+
+        System.out.println("---------");
+    }
+
+    public static boolean analyzeInput(String[] state, String xCoords, String yCoords) {
+        final String OCCUPIED = "This cell is occupied! Choose another one!";
+        final String IS_NOT_NUMBER = "You should enter numbers!";
+        final String WRONG_COORDINATES = "Coordinates should be from 1 to 3";
+
+        String[][] grid = makeGrid(state);
+
+        int x;
+        int y;
+
+        try {
+            x = Integer.parseInt(xCoords);
+            y = Integer.parseInt(yCoords);
+        } catch (NumberFormatException e) {
+            System.out.println(IS_NOT_NUMBER);
+            return false;
+        }
+
+        if (x < 1 || x > 3 || y < 1 || y > 3) {
+            System.out.println(WRONG_COORDINATES);
+            return false;
+        }
+
+        if (isOccupied(grid, x, y)) {
+            System.out.println(OCCUPIED);
+            return false;
+        }
+
+        return true;
+    }
+
+    public static void analyzeState(String[] state) {
 
         boolean isImpossible = checkImpossible(state);
 
@@ -46,7 +115,18 @@ public class Main {
         System.out.println("Game not finished");
     }
 
-    public static boolean checkImpossible(String[] state) {
+    private static boolean isOccupied(String[][] grid, int x, int y) {
+
+        String actual = grid[x - 1][y - 1];
+
+        if (actual.equals(" ") || actual.equals("_")) {
+            return false;
+        } else {
+            return true;
+        }
+    }
+
+    private static boolean checkImpossible(String[] state) {
         int countX = countLetterInGrid(state, "X");
         int countY = countLetterInGrid(state, "O");
 
@@ -127,22 +207,5 @@ public class Main {
                 {state[3], state[4], state[5]},
                 {state[6], state[7], state[8]}
         };
-    }
-
-    public static void printGrid(String[][] grid) {
-        System.out.println("---------");
-
-        for (int i = 0; i < grid.length; i++) {
-
-            System.out.print("| ");
-
-            for (int j = 0; j < grid.length; j++) {
-                System.out.print(grid[i][j] + " ");
-            }
-
-            System.out.println("|");
-        }
-
-        System.out.println("---------");
     }
 }
