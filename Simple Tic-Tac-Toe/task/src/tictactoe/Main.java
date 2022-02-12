@@ -1,5 +1,6 @@
 package tictactoe;
 
+import java.util.Arrays;
 import java.util.Scanner;
 
 public class Main {
@@ -8,10 +9,11 @@ public class Main {
 
         Scanner scanner = new Scanner(System.in);
 
-        System.out.print("Enter cells: ");
-        String[] state = scanner.next().split("");
+        //System.out.print("Enter cells: ");
+        String[] state = new String[9];
+        Arrays.fill(state," ");
 
-        String[][] grid = makeGrid(state);
+        String[][] grid = makeGridFromState(state);
 
         printGrid(grid);
 
@@ -20,24 +22,39 @@ public class Main {
         String xCoords = null;
         String yCoords = null;
 
-        do {
-            System.out.print("Enter the coordinates: ");
+        boolean isXround = true;
+        int result = 0;
 
-            xCoords = scanner.next();
-            yCoords = scanner.next();
+        while (result == 0) {
 
-            inputOK = analyzeInput(state, xCoords, yCoords);
+            do {
+                System.out.print("Enter the coordinates: ");
 
-        } while (!inputOK);
+                xCoords = scanner.next();
+                yCoords = scanner.next();
 
-        int x = Integer.parseInt(xCoords);
-        int y = Integer.parseInt(yCoords);
+                inputOK = analyzeInput(state, xCoords, yCoords);
 
-        grid[x - 1][y - 1] = "X";
+            } while (!inputOK);
 
-        printGrid(grid);
+            int x = Integer.parseInt(xCoords);
+            int y = Integer.parseInt(yCoords);
 
-        //analyzeState(state);
+            if (isXround) {
+                grid[x - 1][y - 1] = "X";
+                isXround = false;
+            } else {
+                grid[x - 1][y - 1] = "O";
+                isXround = true;
+            }
+
+            printGrid(grid);
+            state = makeStateFromGrid(grid);
+
+            result = analyzeState(state);
+
+        }
+
     }
 
     public static void printGrid(String[][] grid) {
@@ -60,9 +77,9 @@ public class Main {
     public static boolean analyzeInput(String[] state, String xCoords, String yCoords) {
         final String OCCUPIED = "This cell is occupied! Choose another one!";
         final String IS_NOT_NUMBER = "You should enter numbers!";
-        final String WRONG_COORDINATES = "Coordinates should be from 1 to 3";
+        final String WRONG_COORDINATES = "Coordinates should be from 1 to 3!";
 
-        String[][] grid = makeGrid(state);
+        String[][] grid = makeGridFromState(state);
 
         int x;
         int y;
@@ -88,31 +105,32 @@ public class Main {
         return true;
     }
 
-    public static void analyzeState(String[] state) {
+    public static int analyzeState(String[] state) {
 
         boolean isImpossible = checkImpossible(state);
 
         if (isImpossible) {
             System.out.println("Impossible");
-            return;
+            return -1;
         }
 
         if (isWinner(state, "X")) {
             System.out.println("X wins");
-            return;
+            return 1;
         }
 
         if (isWinner(state, "O")) {
             System.out.println("O wins");
-            return;
+            return 2;
         }
 
         if (countLetterInGrid(state, "X") + countLetterInGrid(state, "O") == 9) {
             System.out.println("Draw");
-            return;
+            return 3;
         }
 
-        System.out.println("Game not finished");
+        //System.out.println("Game not finished");
+        return 0;
     }
 
     private static boolean isOccupied(String[][] grid, int x, int y) {
@@ -141,7 +159,7 @@ public class Main {
     }
 
     private static boolean isWinner(String[] state, String letter) {
-        String[][] grid = makeGrid(state);
+        String[][] grid = makeGridFromState(state);
         int count = 0;
 
         // check rows
@@ -200,12 +218,21 @@ public class Main {
         return result;
     }
 
-    private static String[][] makeGrid(String[] state) {
+    private static String[][] makeGridFromState(String[] state) {
 
         return new String[][]{
                 {state[0], state[1], state[2]},
                 {state[3], state[4], state[5]},
                 {state[6], state[7], state[8]}
+        };
+    }
+
+    private static String[] makeStateFromGrid(String[][] grid) {
+
+        return new String[]{
+                grid[0][0], grid[0][1], grid[0][2],
+                grid[1][0], grid[1][1], grid[1][2],
+                grid[2][0], grid[2][1], grid[2][2]
         };
     }
 }
